@@ -24,7 +24,7 @@ public class RoomService implements IRoomService {
 		List<Room> list = roomRepo.findByAvailableTrue();
 		
 		if(list.isEmpty()) {
-			throw new IllegalArgumentException("There are no available rooms");
+			throw new NoAvailableRoomException("There are no available rooms");
 		}
 		
 		return list;
