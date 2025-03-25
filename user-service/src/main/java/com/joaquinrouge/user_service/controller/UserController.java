@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.joaquinrouge.user_service.dto.AddToCartDto;
 import com.joaquinrouge.user_service.model.User;
 import com.joaquinrouge.user_service.service.IUserService;
 
@@ -46,11 +45,6 @@ public class UserController {
 		}catch(IllegalArgumentException e) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
 		}
-	}
-	
-	@PostMapping("/cart/add")
-	public ResponseEntity<Object> addToCart(@RequestBody AddToCartDto dto){
-		return ResponseEntity.status(HttpStatus.OK).body(userService.addToCart(dto));
 	}
 	
 	@DeleteMapping("/delete/{deleteId}")

@@ -5,10 +5,6 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.joaquinrouge.user_service.client.ICartClient;
-import com.joaquinrouge.user_service.dto.AddToCartDto;
-import com.joaquinrouge.user_service.dto.CartDto;
-import com.joaquinrouge.user_service.dto.ProductDto;
 import com.joaquinrouge.user_service.model.User;
 import com.joaquinrouge.user_service.repository.IUserRepository;
 
@@ -17,9 +13,6 @@ public class UserService implements IUserService {
 
 	@Autowired
 	private IUserRepository userRepo;
-	
-	@Autowired
-	private ICartClient cartClient;
 	
 	@Override
 	public List<User> getAllUsers() {
@@ -40,9 +33,7 @@ public class UserService implements IUserService {
 		}
 		
 		User createUser = userRepo.save(user);
-		
-		cartClient.createCart(new CartDto(createUser.getId()));
-		
+	
 		return createUser;
 	}
 
@@ -65,11 +56,6 @@ public class UserService implements IUserService {
 		userFromDb.setName(user.getName());
 		
 		return userRepo.save(userFromDb);
-	}
-
-	@Override
-	public AddToCartDto addToCart(AddToCartDto dto) {
-		return cartClient.addToCart(dto);
 	}
 
 }
