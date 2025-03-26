@@ -33,7 +33,7 @@ public class UserController {
 			User user = userService.getUser(id);
 			return ResponseEntity.status(HttpStatus.OK).body(user);
 		}catch(IllegalArgumentException e) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
 		}
 	}
 	

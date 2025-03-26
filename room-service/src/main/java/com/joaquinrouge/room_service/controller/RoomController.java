@@ -50,13 +50,13 @@ public class RoomController {
 		}
 	}
 	
-	@GetMapping("/id/{id}")
-	public ResponseEntity<Object> getRoom(@PathVariable("id") Long id){
+	@GetMapping("/id/{findId}")
+	public ResponseEntity<Object> getRoom(@PathVariable("findId") Long findId){
 		try {
-			Room room = roomService.getRoom(id);
+			Room room = roomService.getRoom(findId);
 			return ResponseEntity.status(HttpStatus.OK).body(room);
-		}catch(NoAvailableRoomException e) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+		}catch(IllegalArgumentException e) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
 		}
 	}
 	
@@ -65,17 +65,23 @@ public class RoomController {
 		try {
 			Room createRoom = roomService.createRoom(room);
 			return ResponseEntity.status(HttpStatus.CREATED).body(createRoom);
-		}catch(NoAvailableRoomException e) {
+		}catch(IllegalArgumentException e) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
 		}
 	}
 	
+	@PostMapping("/update/available/{markId}")
+	public ResponseEntity<Object> markRoomAsUnavailable(@PathVariable("markId") Long markId){
+		roomService.markRoomAsUnavailable(markId);
+		return ResponseEntity.status(HttpStatus.OK).build();
+	}
+	
 	@DeleteMapping("/delete/{deleteId}")
-	public ResponseEntity<Object> deleteRoom(@PathVariable Long id){
+	public ResponseEntity<Object> deleteRoom(@PathVariable("deleteId") Long deleteId){
 		try {
-			roomService.deleteRoom(id);
+			roomService.deleteRoom(deleteId);
 			return ResponseEntity.status(HttpStatus.OK).build();
-		}catch(NoAvailableRoomException e) {
+		}catch(IllegalArgumentException e) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
 		}
 	}
@@ -85,7 +91,7 @@ public class RoomController {
 		try {
 			Room updateRoom = roomService.updateRoom(room);
 			return ResponseEntity.status(HttpStatus.CREATED).body(updateRoom);
-		}catch(NoAvailableRoomException e) {
+		}catch(IllegalArgumentException e) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
 		}
 	}

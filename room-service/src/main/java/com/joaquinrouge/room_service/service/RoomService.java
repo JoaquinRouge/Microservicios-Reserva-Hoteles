@@ -78,4 +78,16 @@ public class RoomService implements IRoomService {
 		return roomRepo.save(roomFromDb);
 	}
 
+	@Override
+	public void markRoomAsUnavailable(Long id) {
+		
+		Room room = this.getRoom(id);
+		
+		room.setAvailable(false);
+		
+		roomRepo.save(room);
+	}
+
+	
+	
 }

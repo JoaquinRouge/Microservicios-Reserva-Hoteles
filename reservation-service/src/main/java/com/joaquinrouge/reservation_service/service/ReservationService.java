@@ -5,14 +5,25 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.joaquinrouge.reservation_service.client.IRoomClient;
+import com.joaquinrouge.reservation_service.client.IUserClient;
+import com.joaquinrouge.reservation_service.dto.RoomDto;
 import com.joaquinrouge.reservation_service.model.Reservation;
 import com.joaquinrouge.reservation_service.model.repository.IReservationRepository;
+
+import feign.FeignException;
 
 @Service
 public class ReservationService implements IReservationService{
 
 	@Autowired
 	private IReservationRepository reservationRepo;
+	
+	@Autowired
+	private IRoomClient roomClient;
+	
+	@Autowired
+	private IUserClient userClient;
 	
 	@Override
 	public List<Reservation> getAllReservations() {
@@ -43,11 +54,48 @@ public class ReservationService implements IReservationService{
 	@Override
 	public Reservation createReservation(Reservation reservation) {
 		
+		//CALL TO ROOM MICROSERVICE TO CHECK ROOM EXISTANCE
+		
+		try {
+			
+			roomClient.getRoom(reservation.getRoomId());	
+			
+		}catch (FeignException.NotFound e) {
+			
+			throw new IllegalArgumentException(
+					"Room with id " + reservation.getRoomId() + " not found.");
+	        
+	    }catch (FeignException e) {
+	    	
+	    	throw new RuntimeException(
+	    			"Error while communicating with Room service: " + e.getMessage());
+	        
+	    }
+		
+		//CALL TO USER MICROSERVICE TO CHECK ROOM EXISTANCE
+		
+		try {
+			
+			userClient.getUser(reservation.getUserId());
+			
+		}catch (FeignException.NotFound e) {
+			
+			throw new IllegalArgumentException(
+					"User with id " + reservation.getUserId() + " not found.");
+	        
+	    }catch (FeignException e) {
+	    	
+	    	throw new RuntimeException(
+	    			"Error while communicating with User service: " + e.getMessage());
+	        
+	    }
+		
 		if(reservationRepo.existsByRoomId(reservation.getRoomId())) {
 			throw new IllegalArgumentException(
 					"The Room with id" + reservation.getRoomId() + " is unavailable");
 		}
 		
+		roomClient.markRoomAsUnavailable(reservation.getRoomId());
 		return reservationRepo.save(reservation);
 	}
 

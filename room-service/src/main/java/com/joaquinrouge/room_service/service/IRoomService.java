@@ -12,4 +12,5 @@ public interface IRoomService {
 	Room createRoom(Room room);
 	void deleteRoom(Long id);
 	Room updateRoom(Room room);
+	void markRoomAsUnavailable(Long id);
 }
