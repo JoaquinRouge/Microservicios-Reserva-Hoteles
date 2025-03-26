@@ -3,11 +3,13 @@ package com.joaquinrouge.room_service.service;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.joaquinrouge.room_service.exception.NoAvailableRoomException;
 import com.joaquinrouge.room_service.model.Room;
 import com.joaquinrouge.room_service.repository.IRoomRepository;
 
+@Service
 public class RoomService implements IRoomService {
 
 	@Autowired
