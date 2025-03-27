@@ -70,9 +70,10 @@ public class RoomController {
 		}
 	}
 	
-	@PostMapping("/update/available/{markId}")
-	public ResponseEntity<Object> markRoomAsUnavailable(@PathVariable("markId") Long markId){
-		roomService.markRoomAsUnavailable(markId);
+	@PostMapping("/update/available/{markId}/{bool}")
+	public ResponseEntity<Object> changeRoomAvailiability(@PathVariable("markId") Long markId,
+			@PathVariable("bool") boolean bool){
+		roomService.changeRoomAvailability(markId,bool);
 		return ResponseEntity.status(HttpStatus.OK).build();
 	}
 	

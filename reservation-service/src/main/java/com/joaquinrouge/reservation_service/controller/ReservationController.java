@@ -74,6 +74,8 @@ public class ReservationController {
 			return ResponseEntity.status(HttpStatus.OK).build();
 		}catch(IllegalArgumentException e) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+		}catch(RuntimeException e){
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
 		}
 	}
 	
@@ -81,7 +83,7 @@ public class ReservationController {
 	public ResponseEntity<Object> deleteReservation(@RequestBody Reservation reservation){
 		try {
 			Reservation updateReservation = reservationService.updateReservation(reservation);
-			return ResponseEntity.status(HttpStatus.CREATED).build();
+			return ResponseEntity.status(HttpStatus.CREATED).body(updateReservation);
 		}catch(IllegalArgumentException e) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
 		}

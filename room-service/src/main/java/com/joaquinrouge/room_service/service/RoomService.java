@@ -79,11 +79,11 @@ public class RoomService implements IRoomService {
 	}
 
 	@Override
-	public void markRoomAsUnavailable(Long id) {
+	public void changeRoomAvailability(Long id,boolean bool) {
 		
 		Room room = this.getRoom(id);
 		
-		room.setAvailable(false);
+		room.setAvailable(bool);
 		
 		roomRepo.save(room);
 	}

@@ -13,7 +13,8 @@ public interface IRoomClient {
 	@GetMapping("/room/id/{findId}")
 	RoomDto getRoom(@PathVariable("findId") Long id);
 	
-	@PostMapping("/room/update/available/{markId}")
-	void markRoomAsUnavailable(@PathVariable("markId") Long markId);
+	@PostMapping("/room/update/available/{markId}/{bool}")
+	void changeRoomAvailability(@PathVariable("markId") Long markId,
+			@PathVariable("bool") boolean bool);
 	
 }

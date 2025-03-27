@@ -9,9 +9,11 @@ import com.joaquinrouge.reservation_service.client.IRoomClient;
 import com.joaquinrouge.reservation_service.client.IUserClient;
 import com.joaquinrouge.reservation_service.dto.RoomDto;
 import com.joaquinrouge.reservation_service.model.Reservation;
+import com.joaquinrouge.reservation_service.model.ReservationStatus;
 import com.joaquinrouge.reservation_service.model.repository.IReservationRepository;
 
 import feign.FeignException;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 
 @Service
 public class ReservationService implements IReservationService{
@@ -52,6 +54,7 @@ public class ReservationService implements IReservationService{
 	}
 
 	@Override
+	@CircuitBreaker(name="ROOM-SERVICE",fallbackMethod="createReservationFallBack")
 	public Reservation createReservation(Reservation reservation) {
 		
 		//CALL TO ROOM MICROSERVICE TO CHECK ROOM EXISTANCE
@@ -95,20 +98,42 @@ public class ReservationService implements IReservationService{
 					"The Room with id" + reservation.getRoomId() + " is unavailable");
 		}
 		
-		roomClient.markRoomAsUnavailable(reservation.getRoomId());
+		roomClient.changeRoomAvailability(reservation.getRoomId(),false);
 		return reservationRepo.save(reservation);
 	}
 
+	public Reservation createReservationFallBack(Throwable t) {
+		
+		System.out.println(
+				"Fallback method createReservation executed. Error: " + t.getMessage());
+		
+		return new Reservation(-1L,-1L,-1L,ReservationStatus.CANCELLED);
+	}
+	
 	@Override
+	@CircuitBreaker(name="ROOM-SERVICE", fallbackMethod="deleteReservationFallBack")
 	public void deleteReservation(Long id) {
 		if(!reservationRepo.existsById(id)) {
 			throw new IllegalArgumentException("Reservation with id " + id + " not found");
 		}
 		
+		Reservation reservation = this.getReservation(id);
+		
 		reservationRepo.deleteById(id);
+		
+		roomClient.changeRoomAvailability(reservation.getRoomId(), true);
 		
 	}
 
+	public void deleteReservationFallBack(Long id,Throwable t) {
+		System.out.println(
+				"Fallback method deleteReservation for id " + id +
+				"executed. Error: " + t.getMessage());
+		
+	    throw new RuntimeException("Unable to delete reservation with id " + id + 
+                " due to a problem in ROOM-SERVICE.");
+	}
+	
 	@Override
 	public Reservation updateReservation(Reservation reservation) {
 		
@@ -116,7 +141,7 @@ public class ReservationService implements IReservationService{
 		
 		if(reservationRepo.existsByRoomId(reservation.getRoomId())) {
 			throw new IllegalArgumentException(
-					"The Room with id" + reservation.getRoomId() + " is unavailable");
+					"The Room with id " + reservation.getRoomId() + " is unavailable");
 		}
 		
 		reservationFromDb.setRoomId(reservation.getRoomId());
